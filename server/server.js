@@ -22,18 +22,16 @@ io.on('connection', (socket) => {
     });
 
     // Welcome message
-    socket.emit('newMessage', generateMessage('Chat App',
-        'Welcome to the chat app'));
+    socket.emit('newMessage', generateMessage('Chat App', 'Welcome to the chat app'));
 
     // New user joined message
-    socket.broadcast.emit('newMessage', generateMessage('Chat App',
-        'New user joined'));
-
+    socket.broadcast.emit('newMessage', generateMessage('Chat App', 'New user joined'));
 
     // Message created broadcast
-    socket.on('createMessage', (message) => {
+    socket.on('createMessage', (message, callback) => {
         message.createdAt = new Date();
         io.emit('newMessage', generateMessage(message.from, message.text));
+        callback('The message was sent successfully');
     });
 });
 
