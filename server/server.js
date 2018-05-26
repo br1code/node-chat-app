@@ -1,8 +1,9 @@
 "use strict";
-const express       = require('express');
-const socketIO      = require('socket.io');
-const path          = require('path');
-const http          = require('http');
+const express           = require('express');
+const socketIO          = require('socket.io');
+const path              = require('path');
+const http              = require('http');
+const {generateMessage} = require('./utils/message');
 
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
@@ -21,23 +22,18 @@ io.on('connection', (socket) => {
     });
 
     // Welcome message
-    socket.emit('newMessage', {
-        from: 'Chat App',
-        text: 'Welcome to the Chat App',
-        createdAt: new Date()
-    });
+    socket.emit('newMessage', generateMessage('Chat App',
+        'Welcome to the chat app'));
 
     // New user joined message
-    socket.broadcast.emit('newMessage', {
-        from: 'Chat App',
-        text: 'New user joined',
-        createdAt: new Date()
-    });
+    socket.broadcast.emit('newMessage', generateMessage('Chat App',
+        'New user joined'));
+
 
     // Message created broadcast
     socket.on('createMessage', (message) => {
         message.createdAt = new Date();
-        socket.broadcast.emit('newMessage', message);
+        io.emit('newMessage', generateMessage(message.from, message.text));
     });
 });
 
