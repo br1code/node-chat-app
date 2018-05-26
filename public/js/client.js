@@ -17,16 +17,21 @@ socket.on('newMessage', function(message) {
     // create a new li with the message data
     var li = $('<li></li>');
     li.text(`${message.from}: ${message.text}`);
-    // append to the DOM
+    // append to the list of messages
     messagesList.append(li);
 });
 
 socket.on('newLocationMessage', function(message) {
+    // create new li and a tag
     var li = $('<li></li>');
     var a = $('<a target="_blank">My current location</a>');
+    // set li text
     li.text(`${message.from}: `);
+    // set href to a tag
     a.prop('href', message.url);
+    // append the a tag to the li
     li.append(a);
+    // append to the list of messages
     messagesList.append(li);
 });
 
@@ -40,7 +45,6 @@ messageForm.on('submit', function(e) {
         text: textMessage.value
     }, function() {
         textMessage.value = "";
-        textMessage.focus();
     });
 });
 
