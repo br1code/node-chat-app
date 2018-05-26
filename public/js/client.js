@@ -45,7 +45,7 @@ messageForm.on('submit', function(e) {
 });
 
 locationButton.on('click', function(e) {
-    if (!navigator.geolocation) {
+    if (!('geolocation' in navigator)) {
         return alert('Geolocation not supported by your browser');
     }
     navigator.geolocation.getCurrentPosition(function(pos) {
