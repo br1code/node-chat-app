@@ -31,12 +31,12 @@ io.on('connection', (socket) => {
     socket.on('createMessage', (message, callback) => {
         message.createdAt = new Date();
         io.emit('newMessage', utilsMessage.generateMessage(message.from, message.text));
-        callback('The message was sent successfully');
+        callback();
     });
 
     // Location message
     socket.on('createLocationMessage', (coords) => {
-        io.emit('newLocationMessage', utilsMessage.generateLocationMessage('Chat App', coords));
+        io.emit('newLocationMessage', utilsMessage.generateLocationMessage('User', coords));
     });
 });
 
