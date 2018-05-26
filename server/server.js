@@ -20,8 +20,24 @@ io.on('connection', (socket) => {
         console.log('A user has disconnected');
     });
 
+    // Welcome message
+    socket.emit('newMessage', {
+        from: 'Chat App',
+        text: 'Welcome to the Chat App',
+        createdAt: new Date()
+    });
+
+    // New user joined message
+    socket.broadcast.emit('newMessage', {
+        from: 'Chat App',
+        text: 'New user joined',
+        createdAt: new Date()
+    });
+
+    // Message created broadcast
     socket.on('createMessage', (message) => {
-        socket.emit('newMessage', message);
+        message.createdAt = new Date();
+        socket.broadcast.emit('newMessage', message);
     });
 });
 
