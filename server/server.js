@@ -3,7 +3,7 @@ const express           = require('express');
 const socketIO          = require('socket.io');
 const path              = require('path');
 const http              = require('http');
-const {generateMessage} = require('./utils/message');
+const utilsMessage      = require('./utils/message');
 
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
@@ -22,16 +22,21 @@ io.on('connection', (socket) => {
     });
 
     // Welcome message
-    socket.emit('newMessage', generateMessage('Chat App', 'Welcome to the chat app'));
+    socket.emit('newMessage', utilsMessage.generateMessage('Chat App', 'Welcome to the chat app'));
 
     // New user joined message
-    socket.broadcast.emit('newMessage', generateMessage('Chat App', 'New user joined'));
+    socket.broadcast.emit('newMessage', utilsMessage.generateMessage('Chat App', 'New user joined'));
 
     // Message created broadcast
     socket.on('createMessage', (message, callback) => {
         message.createdAt = new Date();
-        io.emit('newMessage', generateMessage(message.from, message.text));
+        io.emit('newMessage', utilsMessage.generateMessage(message.from, message.text));
         callback('The message was sent successfully');
+    });
+
+    // Location message
+    socket.on('createLocationMessage', (coords) => {
+        io.emit('newLocationMessage', utilsMessage.generateLocationMessage('Chat App', coords));
     });
 });
 
