@@ -14,9 +14,13 @@ socket.on('disconnect', function() {
 });
 
 socket.on('newMessage', function(message) {
+    // ser formatted time with moment
+    var time = moment(message.createdAt).format('h:mm a');
     // create a new li with the message data
     var li = $('<li></li>');
-    li.text(`${message.from}: ${message.text}`);
+    // set formatted li text
+    var text = message.from + ' ' + time + ': ' + message.text;
+    li.text(text);
     // append to the list of messages
     messagesList.append(li);
 });

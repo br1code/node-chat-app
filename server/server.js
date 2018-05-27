@@ -22,19 +22,18 @@ io.on('connection', (socket) => {
     });
 
     // Welcome message
-    socket.emit('newMessage', utilsMessage.generateMessage('Chat App', 'Welcome to the chat app'));
+    socket.emit('newMessage', utilsMessage.generateMessage('Admin', 'Welcome to the chat app'));
 
     // New user joined message
-    socket.broadcast.emit('newMessage', utilsMessage.generateMessage('Chat App', 'New user joined'));
+    socket.broadcast.emit('newMessage', utilsMessage.generateMessage('Admin', 'New user joined'));
 
-    // Message created broadcast
+    // New message created
     socket.on('createMessage', (message, callback) => {
-        message.createdAt = new Date();
         io.emit('newMessage', utilsMessage.generateMessage(message.from, message.text));
         callback();
     });
 
-    // Location message
+    // New location message
     socket.on('createLocationMessage', (coords) => {
         io.emit('newLocationMessage', utilsMessage.generateLocationMessage('User', coords));
     });
