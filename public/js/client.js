@@ -27,6 +27,7 @@ socket.on('newMessage', function(message) {
     });
     // append to the list of messages
     messagesList.append(html);
+    scrollToBottom();
 });
 
 socket.on('newLocationMessage', function(message) {
@@ -42,6 +43,7 @@ socket.on('newLocationMessage', function(message) {
     });
     // append to the list of messages
     messagesList.append(html);
+    scrollToBottom();
 });
 
 // DOM EVENTS
@@ -81,3 +83,22 @@ locationButton.on('click', function(e) {
         alert('Unable to get the current geolocation');
     });
 });
+
+// Scroll Down handling
+function scrollToBottom() {
+    // get the new incoming message
+    var newMessage = messagesList.children('li:last-child');
+    // Heights
+    var clientHeight = messagesList.prop('clientHeight');
+    var scrollTop = messagesList.prop('scrollTop');
+    var scrollHeight = messagesList.prop('scrollHeight');
+    var newMessageHeight = newMessage.innerHeight();
+    var lastMessageHeight = newMessage.prev().innerHeight();
+    // total current height
+    var currentHeight = clientHeight + scrollTop + 
+        newMessageHeight + lastMessageHeight;
+    // calculate
+    if (currentHeight >= scrollHeight) {
+        messagesList.scrollTop(scrollHeight);
+    }
+}
