@@ -14,7 +14,7 @@ socket.on('disconnect', function() {
 });
 
 socket.on('newMessage', function(message) {
-    // ser formatted time with moment
+    // set formatted time with moment
     var time = moment(message.createdAt).format('h:mm a');
     // create a new li with the message data
     var li = $('<li></li>');
@@ -29,8 +29,11 @@ socket.on('newLocationMessage', function(message) {
     // create new li and a tag
     var li = $('<li></li>');
     var a = $('<a target="_blank">My current location</a>');
-    // set li text
-    li.text(`${message.from}: `);
+    // set formatted time with moment
+    var time = moment(message.createdAt).format('h:mm a');
+    // set formatted li text
+    var text = message.from + ' ' + time + ': ';
+    li.text(text);
     // set href to a tag
     a.prop('href', message.url);
     // append the a tag to the li
@@ -41,14 +44,13 @@ socket.on('newLocationMessage', function(message) {
 
 messageForm.on('submit', function(e) {
     e.preventDefault();
-    // get the input from the form
+    // get the input from the form and reset
     let textMessage = this.message;
+    textMessage.value = "";
     // send the message to the server
     socket.emit('createMessage', {
-        from: 'User',
+        from: 'User ' + socket.id.slice(0,5),
         text: textMessage.value
-    }, function() {
-        textMessage.value = "";
     });
 });
 

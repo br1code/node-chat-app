@@ -15,6 +15,7 @@ var io = socketIO(server);
 app.use(express.static(publicPath));
 
 io.on('connection', (socket) => {
+    socket.userId = Math.random() * 10000;
     console.log('New user connected');
 
     socket.on('disconnect', () => {
@@ -28,14 +29,13 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('newMessage', utilsMessage.generateMessage('Admin', 'New user joined'));
 
     // New message created
-    socket.on('createMessage', (message, callback) => {
+    socket.on('createMessage', (message) => {
         io.emit('newMessage', utilsMessage.generateMessage(message.from, message.text));
-        callback();
     });
 
     // New location message
     socket.on('createLocationMessage', (coords) => {
-        io.emit('newLocationMessage', utilsMessage.generateLocationMessage('User', coords));
+        io.emit('newLocationMessage', utilsMessage.generateLocationMessage('User ' + socket.id.slice(0,5), coords));
     });
 });
 
