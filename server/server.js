@@ -33,8 +33,8 @@ io.on('connection', (socket) => {
     });
 
     // New location message
-    socket.on('createLocationMessage', (coords) => {
-        io.emit('newLocationMessage', utilsMessage.generateLocationMessage('User ' + socket.id.slice(0,5), coords));
+    socket.on('createLocationMessage', (message) => {
+        io.emit('newLocationMessage', utilsMessage.generateLocationMessage(message.from, message.coords));
     });
 });
 
