@@ -5,15 +5,23 @@ var locationButton = $('#send-location');
 
 var socket = io();
 
+// SOCKET EVENTS
 socket.on('connect', function() {
-    console.log('Connected to server');
+    // get the query string params
+    var queryParams = $.deparam(window.location.search);
+    // send to the server for internal validation
+    socket.emit('join', queryParams, function(err) {
+        if (err) {
+            alert(err);
+            window.location.href = '/';
+        }
+    });
 });
 
 socket.on('disconnect', function() {
     console.log('Disconnected from server');
 });
 
-// SOCKET EVENTS
 socket.on('newMessage', function(message) {
     // set formatted time with moment
     var time = moment(message.createdAt).format('h:mm a');

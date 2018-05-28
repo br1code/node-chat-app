@@ -4,6 +4,7 @@ const socketIO          = require('socket.io');
 const path              = require('path');
 const http              = require('http');
 const utilsMessage      = require('./utils/message');
+const utilsValidation   = require('./utils/validation');
 
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
@@ -21,11 +22,24 @@ io.on('connection', (socket) => {
         console.log('A user has disconnected');
     });
 
-    // Welcome message
-    socket.emit('newMessage', utilsMessage.generateMessage('Admin', 'Welcome to the chat app'));
 
-    // New user joined message
-    socket.broadcast.emit('newMessage', utilsMessage.generateMessage('Admin', 'New user joined'));
+
+    // New user has joined
+    socket.on('join', (params, callback) => {
+        if (!utilsValidation.isString(params.name) || !utilsValidation.isString(params.room)) {
+            callback('User name and room name are required');
+        }
+        // Join a specific room
+        socket.join(params.room);
+
+        // Welcome message
+        socket.emit('newMessage', utilsMessage.generateMessage('Admin', 'Welcome to the chat app'));
+
+        // New user joined message
+        socket.broadcast.to(params.room).emit('newMessage', utilsMessage.generateMessage('Admin', `${params.name} has joined`));
+
+        callback();
+    });
 
     // New message created
     socket.on('createMessage', (message) => {
