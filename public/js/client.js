@@ -46,12 +46,13 @@ messageForm.on('submit', function(e) {
     e.preventDefault();
     // get the input from the form and reset
     let textMessage = this.message;
-    textMessage.value = "";
+    
     // send the message to the server
     socket.emit('createMessage', {
         from: 'User ' + socket.id.slice(0,5),
         text: textMessage.value
     });
+    textMessage.value = "";
 });
 
 locationButton.on('click', function(e) {

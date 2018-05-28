@@ -15,7 +15,6 @@ var io = socketIO(server);
 app.use(express.static(publicPath));
 
 io.on('connection', (socket) => {
-    socket.userId = Math.random() * 10000;
     console.log('New user connected');
 
     socket.on('disconnect', () => {
