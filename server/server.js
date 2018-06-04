@@ -1,11 +1,12 @@
 "use strict";
-const express           = require('express');
-const socketIO          = require('socket.io');
-const path              = require('path');
-const http              = require('http');
-const utilsMessage      = require('./utils/message');
-const utilsValidation   = require('./utils/validation');
-const Users             = require('./utils/users');
+const express                   = require('express');
+const socketIO                  = require('socket.io');
+const path                      = require('path');
+const http                      = require('http');
+const validation                = require('./utils/validation');
+const Users                     = require('./utils/users');
+const generateMessage           = require('./utils/message').generateMessage;
+const generateLocationMessage   = require('./utils/message').generateLocationMessage;
 
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
@@ -20,14 +21,15 @@ app.use(express.static(publicPath));
 io.on('connection', (socket) => {
     console.log('New user connected');
 
+    // User has left
     socket.on('disconnect', () => {
-        var user = users.removeUser(socket.id);
+        let user = users.removeUser(socket.id);
         // if a user has been removed
         if (user) {
             // update the user list from the client
             io.to(user.room).emit('updateUserList', users.getUserList(user.room));
             // send a message to the users in that room
-            io.to(user.room).emit('newMessage', utilsMessage.generateMessage('Admin', user.name + ' has left.'));
+            io.to(user.room).emit('newMessage', generateMessage('Admin', user.name + ' has left.'));
         }
     });
 
@@ -35,7 +37,7 @@ io.on('connection', (socket) => {
     socket.on('join', (params, callback) => {
 
         // simple form validation
-        if (!utilsValidation.isString(params.name) || !utilsValidation.isString(params.room)) {
+        if (!validation.isRealString(params.name) || !validation.isRealString(params.room)) {
             return callback('User name and room name are required');
         }
 
@@ -48,11 +50,11 @@ io.on('connection', (socket) => {
         // Emit the event to update the user list of that particular room
         io.to(params.room).emit('updateUserList', users.getUserList(params.room));
 
-        // Welcome message
-        socket.emit('newMessage', utilsMessage.generateMessage('Admin', 'Welcome to the chat app'));
+        // Send a welcome message
+        socket.emit('newMessage', generateMessage('Admin', `Welcome to "${params.room}" room`));
 
-        // New user joined message
-        socket.broadcast.to(params.room).emit('newMessage', utilsMessage.generateMessage('Admin', `${params.name} has joined`));
+        // Notify other users that a user has joined
+        socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined`));
 
         // no error
         callback(null);
@@ -60,12 +62,24 @@ io.on('connection', (socket) => {
 
     // New message created
     socket.on('createMessage', (message) => {
-        io.emit('newMessage', utilsMessage.generateMessage(message.from, message.text));
+        // get the user with the socket id
+        let user = users.getUser(socket.id);
+        // if the user has been found and the text it's not empty
+        if (user && validation.isRealString(message.text)) {
+            // send a new message only to that particular room
+            io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+        }
     });
 
     // New location message
     socket.on('createLocationMessage', (message) => {
-        io.emit('newLocationMessage', utilsMessage.generateLocationMessage(message.from, message.coords));
+        // get the user with the socket id
+        let user = users.getUser(socket.id);
+        // if the user has been found
+        if (user) {
+            // send a new location message only to that particular room
+            io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, message.coords));
+        }
     });
 });
 
